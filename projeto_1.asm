@@ -18,19 +18,19 @@
 
     msg_sistema db "BEM-VINDO AO SISTEMA DE NOTAS", 0AH, 0
     msg_menu_1 db "1-Incluir notas de alunos", 0AH, 0
-    msg_menu_2 db "2-Exibir médias de alunos", 0AH, 0
+    msg_menu_2 db "2-Exibir mï¿½dias de alunos", 0AH, 0
     msg_menu_3 db "3-Sair", 13,10, 0AH, 0
 
     op_1_msg db "Vamos adicionar os alunos e as notas", 0AH, 0
     op_2_msg db "Vamos exibir as medias", 0AH, 0
     op_3_msg db "Obrigado por usar o sistema", 0AH, 0
     
-    msg_opcao db "Digite a opção desejada: ", 0H
-    msg_op_select db "A opção escolhida foi %d", 0AH, 0
+    msg_opcao db "Digite a opï¿½ï¿½o desejada: ", 0H
+    msg_op_select db "A opï¿½ï¿½o escolhida foi %d", 0AH, 0
     msg_limite db "Limite de alunos atingido.", 0AH, 0
-    opcao dd 4 dup(0) ; usigned int, armazena a opção do usuário (resposta para msg_opcao)
+    opcao dd 4 dup(0) ; usigned int, armazena a opï¿½ï¿½o do usuï¿½rio (resposta para msg_opcao)
 
-    aux_handle dd 0 ; auxiliar de opção
+    aux_handle dd 0 ; auxiliar de opï¿½ï¿½o
     input_handle dd 0
     output_handle dd 0
     tamanho_string dd 0
@@ -38,13 +38,13 @@
 
 .code
 start:
-    ;------------Mensagem de Bem-vindo e opções
+    ;------------Mensagem de Bem-vindo e opï¿½ï¿½es
     menu:
         invoke GetStdHandle, STD_OUTPUT_HANDLE 
         mov output_handle, eax
         invoke WriteConsole, output_handle, addr msg_sistema, sizeof msg_sistema, addr count, NULL
 
-        ; Exibindo opções (1 à 3)
+        ; Exibindo opï¿½ï¿½es (1 ï¿½ 3)
         invoke GetStdHandle, STD_OUTPUT_HANDLE 
         mov output_handle, eax
         invoke WriteConsole, output_handle, addr msg_menu_1, sizeof msg_menu_1, addr count, NULL
@@ -58,7 +58,7 @@ start:
         invoke WriteConsole, output_handle, addr msg_menu_3, sizeof msg_menu_3, addr count, NULL
 
 
-        ;------------Informando a opção
+        ;------------Informando a opï¿½ï¿½o
         invoke GetStdHandle, STD_OUTPUT_HANDLE
         mov output_handle, eax
 
@@ -72,45 +72,45 @@ start:
         invoke ReadConsole, input_handle, addr opcao, sizeof opcao, addr count, NULL
 
         ; Convertendo para inteiro
-        COMMENT @
-        mov esi, offset opcao
-        proximo:
-            mov al, [esi]
-            inc esi
-            cmp al, 48
-            jl terminar
-            cmp al, 58
-            jl proximo
-        terminar:
-            dec esi
-            xor al, al
-            mov [esi], al
+        ; COMMENT @
+        ; mov esi, offset opcao
+        ; proximo:
+        ;     mov al, [esi]
+        ;     inc esi
+        ;     cmp al, 48
+        ;     jl terminar
+        ;     cmp al, 58
+        ;     jl proximo
+        ; terminar:
+        ;     dec esi
+        ;     xor al, al
+        ;     mov [esi], al
 
-        invoke atodw, offset opcao ; transf a str de opcao em int e guarda em eax
-        invoke dwtoa, eax, offset opcao ; faz o inverso
+        ; invoke atodw, offset opcao ; transf a str de opcao em int e guarda em eax
+        ; invoke dwtoa, eax, offset opcao ; faz o inverso
 
-        invoke StrLen, offset opcao
-        mov tamanho_string, eax
-        invoke WriteConsole, output_handle, offset opcao, tamanho_string, offset count, NULL
-        @
+        ; invoke StrLen, offset opcao
+        ; mov tamanho_string, eax
+        ; invoke WriteConsole, output_handle, offset opcao, tamanho_string, offset count, NULL
+        ; @
         
-        ;------Realizando a comparação
+        ;------Realizando a comparaï¿½ï¿½o
         comparar:
             ;--Adicionar Notas
             cmp opcao, 49
             jne exibir_medias 
 
-            ;...... Funcionalidades da opção 1
+            ;...... Funcionalidades da opï¿½ï¿½o 1
             invoke GetStdHandle, STD_OUTPUT_HANDLE 
             mov output_handle, eax
             invoke WriteConsole, output_handle, addr op_1_msg, sizeof op_1_msg, addr count, NULL
 
-            ;--Exibe as médias
+            ;--Exibe as mï¿½dias
             exibir_medias:
                 cmp opcao, 50
-                jne sair ; se não for igual, vai para a opção 3, sair
+                jne sair ; se nï¿½o for igual, vai para a opï¿½ï¿½o 3, sair
 
-                ;...... Funcionalidades da opção 2
+                ;...... Funcionalidades da opï¿½ï¿½o 2
                 invoke GetStdHandle, STD_OUTPUT_HANDLE 
                 mov output_handle, eax
                 invoke WriteConsole, output_handle, addr op_2_msg, sizeof op_2_msg, addr count, NULL
@@ -120,7 +120,7 @@ start:
                 cmp opcao, 51
                 ;jne comparar
                 
-                ;...... Funcionalidades da opção 3
+                ;...... Funcionalidades da opï¿½ï¿½o 3
                 invoke GetStdHandle, STD_OUTPUT_HANDLE 
                 mov output_handle, eax
                 invoke WriteConsole, output_handle, addr op_3_msg, sizeof op_3_msg, addr count, NULL
