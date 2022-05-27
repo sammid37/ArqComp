@@ -1,3 +1,5 @@
+; Samantha Dantas Medeiros (GitHub: @sammid37)
+; 27/05/2022
 .686
 .model flat, stdcall
     option casemap: none
@@ -18,19 +20,19 @@
 
     msg_sistema db "BEM-VINDO AO SISTEMA DE NOTAS", 0AH, 0
     msg_menu_1 db "1-Incluir notas de alunos", 0AH, 0
-    msg_menu_2 db "2-Exibir mï¿½dias de alunos", 0AH, 0
+    msg_menu_2 db "2-Exibir medias de alunos", 0AH, 0
     msg_menu_3 db "3-Sair", 13,10, 0AH, 0
 
     op_1_msg db "Vamos adicionar os alunos e as notas", 0AH, 0
     op_2_msg db "Vamos exibir as medias", 0AH, 0
     op_3_msg db "Obrigado por usar o sistema", 0AH, 0
     
-    msg_opcao db "Digite a opï¿½ï¿½o desejada: ", 0H
-    msg_op_select db "A opï¿½ï¿½o escolhida foi %d", 0AH, 0
+    msg_opcao db "Digite a opcao desejada: ", 0H
+    msg_op_select db "A opcao escolhida foi %d", 0AH, 0
     msg_limite db "Limite de alunos atingido.", 0AH, 0
-    opcao dd 4 dup(0) ; usigned int, armazena a opï¿½ï¿½o do usuï¿½rio (resposta para msg_opcao)
+    opcao db 5 dup(0) ; usigned int, armazena a opcao do usuario (resposta para msg_opcao)
 
-    aux_handle dd 0 ; auxiliar de opï¿½ï¿½o
+    aux_handle dd 0 ; auxiliar de opcao
     input_handle dd 0
     output_handle dd 0
     tamanho_string dd 0
@@ -38,13 +40,13 @@
 
 .code
 start:
-    ;------------Mensagem de Bem-vindo e opï¿½ï¿½es
+    ;------------Mensagem de Bem-vindo e opcoes
     menu:
         invoke GetStdHandle, STD_OUTPUT_HANDLE 
         mov output_handle, eax
         invoke WriteConsole, output_handle, addr msg_sistema, sizeof msg_sistema, addr count, NULL
 
-        ; Exibindo opï¿½ï¿½es (1 ï¿½ 3)
+        ; Exibindo opcoes (1, 2 ou 3)
         invoke GetStdHandle, STD_OUTPUT_HANDLE 
         mov output_handle, eax
         invoke WriteConsole, output_handle, addr msg_menu_1, sizeof msg_menu_1, addr count, NULL
@@ -66,39 +68,17 @@ start:
         mov input_handle, eax
 
 
-        invoke StrLen, addr msg_opcao
+        invoke StrLen, addr msg_opcao ; pergunta
         mov tamanho_string, eax
-        invoke WriteConsole, output_handle, addr msg_opcao, tamanho_string, addr count, NULL
-        invoke ReadConsole, input_handle, addr opcao, sizeof opcao, addr count, NULL
+        invoke WriteConsole, output_handle, offset msg_opcao, sizeof msg_opcao, offset count, NULL
+        invoke ReadConsole, input_handle, offset opcao, sizeof opcao, offset count, NULL
 
-        ; Convertendo para inteiro
-        ; COMMENT @
-        ; mov esi, offset opcao
-        ; proximo:
-        ;     mov al, [esi]
-        ;     inc esi
-        ;     cmp al, 48
-        ;     jl terminar
-        ;     cmp al, 58
-        ;     jl proximo
-        ; terminar:
-        ;     dec esi
-        ;     xor al, al
-        ;     mov [esi], al
 
-        ; invoke atodw, offset opcao ; transf a str de opcao em int e guarda em eax
-        ; invoke dwtoa, eax, offset opcao ; faz o inverso
-
-        ; invoke StrLen, offset opcao
-        ; mov tamanho_string, eax
-        ; invoke WriteConsole, output_handle, offset opcao, tamanho_string, offset count, NULL
-        ; @
-        
         ;------Realizando a comparaï¿½ï¿½o
         comparar:
             ;--Adicionar Notas
             cmp opcao, 49
-            jne exibir_medias 
+            jne exibir_medias ; se não for igual, vai para a opção 2 (exibir media)
 
             ;...... Funcionalidades da opï¿½ï¿½o 1
             invoke GetStdHandle, STD_OUTPUT_HANDLE 
@@ -107,7 +87,7 @@ start:
 
             ;--Exibe as mï¿½dias
             exibir_medias:
-                cmp opcao, 50
+                cmp opcao, 50 ; se não for igual, vai para a opção 3 (sair)
                 jne sair ; se nï¿½o for igual, vai para a opï¿½ï¿½o 3, sair
 
                 ;...... Funcionalidades da opï¿½ï¿½o 2
@@ -118,7 +98,8 @@ start:
             ;--Encerra o Programa
             sair:
                 cmp opcao, 51
-                ;jne comparar
+                jne comparar ; se não for igual, volta a comparar
+                
                 
                 ;...... Funcionalidades da opï¿½ï¿½o 3
                 invoke GetStdHandle, STD_OUTPUT_HANDLE 
