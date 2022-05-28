@@ -3,6 +3,7 @@
 .686
 .model flat, stdcall
     option casemap: none
+    .xmm
 
     include \masm32\include\windows.inc
     include \masm32\include\kernel32.inc
@@ -47,12 +48,20 @@
 
     soma_notas REAL4 0.0 ;soma as notas do aluno
     media_aluno REAL4 0.0 ;calcula a media do aluno
-    qtd_alunos dd 0 ;contador, armazena a qtd de alunos
+    qtd_alunos dd 0 , 0;contador, armazena a qtd de alunos
 
     ;------Variaveis referentes a opcao 2
+    msg_qtd_alunos db "Foram registrados %d alunos.", 0AH, 0
     msg_limite db "Limite de alunos atingido.", 0AH, 0
 
 .code
+; pilha de execução, inserir notas
+
+; pilha de execução, somar notas
+
+; pilha de execução, calcular media
+
+
 start:
     ;------------Mensagem de Bem-vindo e opcoes
     menu:
@@ -89,7 +98,7 @@ start:
 
         ;------Realizando a comparacao
         ;--Adicionar Notas
-        cmp opcao, 49 ; 49 -> 1 (ASCII)
+        cmp opcao, 49 ; 49 (ASCII) = 1 (DEC)
         jne exibir_medias ; se nao for igual, vai para a opcao 2 (exibir media)
         
         ;--Incluir aluno e suas 3 notas
@@ -115,26 +124,34 @@ start:
                 mov output_handle, eax
                 invoke GetStdHandle, STD_INPUT_HANDLE
                 mov input_handle, eax
+
                 invoke WriteConsole, output_handle, offset msg_nome, sizeof msg_nome, offset count, NULL
                 invoke ReadConsole, input_handle, offset nome_aluno, sizeof nome_aluno, offset count, NULL
-                printf(addr nome_aluno) ;teste, imprime o nome digitado
+                
                 ; informando as notas
 
                 ; incrementando o contador de alunos
+                xor eax, eax ;zerando eax
+                add qtd_alunos, 1
+      
 
         ;--Exibe as medias
         exibir_medias:
-            cmp opcao, 50  ; 50 -> 2 (ASCII)
+            cmp opcao, 50  ; 50 (ASCII) = 2 (DEC)
             jne sair ; se nao for igual, vai para a opcao 3, sair
 
             ;...... Funcionalidades da opcao 2
             invoke GetStdHandle, STD_OUTPUT_HANDLE 
             mov output_handle, eax
             invoke WriteConsole, output_handle, addr op_2_msg, sizeof op_2_msg, addr count, NULL
+            
+            ; Exibe o valor de qtd_alunos
+            invoke WriteConsole, output_handle, addr msg_qtd_alunos, sizeof msg_qtd_alunos, addr count, NULL ; teste
+            printf("%d alunos.\n", qtd_alunos) ;funciona
     
         ;--Encerra o Programa
         sair:
-            cmp opcao, 51 ; 51 -> 3 (ASCII)
+            cmp opcao, 51 ; 51(ASCII) = 3 (DEC)
             jne menu ; se nao for igual, volta para o menu e compara
             
             ;...... Funcionalidades da opcao 3
