@@ -63,33 +63,21 @@
 
 
 start:
+     ;------Handles para a entrada e saída de dados
+    invoke GetStdHandle, STD_OUTPUT_HANDLE
+    mov output_handle, eax
+    invoke GetStdHandle, STD_INPUT_HANDLE
+    mov input_handle, eax
     ;------------Mensagem de Bem-vindo e opcoes
     menu:
-        invoke GetStdHandle, STD_OUTPUT_HANDLE 
-        mov output_handle, eax
+        ;Mensagem de Bem-Vindo
         invoke WriteConsole, output_handle, addr msg_sistema, sizeof msg_sistema, addr count, NULL
-
-        ; Exibindo opcoes (1, 2 ou 3)
-        invoke GetStdHandle, STD_OUTPUT_HANDLE 
-        mov output_handle, eax
+        ; Exibindo opcoes (1, 2 ou 3)   
         invoke WriteConsole, output_handle, addr msg_menu_1, sizeof msg_menu_1, addr count, NULL
-
-        invoke GetStdHandle, STD_OUTPUT_HANDLE 
-        mov output_handle, eax
         invoke WriteConsole, output_handle, addr msg_menu_2, sizeof msg_menu_2, addr count, NULL
-
-        invoke GetStdHandle, STD_OUTPUT_HANDLE 
-        mov output_handle, eax
         invoke WriteConsole, output_handle, addr msg_menu_3, sizeof msg_menu_3, addr count, NULL
 
-
         ;------------Informando a opcao
-        ;------Handles para a entrada e saída de dados
-        invoke GetStdHandle, STD_OUTPUT_HANDLE
-        mov output_handle, eax
-        invoke GetStdHandle, STD_INPUT_HANDLE
-        mov input_handle, eax
-
         ;------Exibindo a pergunta e obtendo a resposta do usuário
         invoke StrLen, addr msg_opcao ; pergunta
         mov tamanho_string, eax
@@ -104,8 +92,6 @@ start:
         ;--Incluir aluno e suas 3 notas
         adicionar_notas:
             ;...... Funcionalidades da opcao 1
-            invoke GetStdHandle, STD_OUTPUT_HANDLE 
-            mov output_handle, eax
             invoke WriteConsole, output_handle, addr op_1_msg, sizeof op_1_msg, addr count, NULL
 
             ;Compara se o contador de alunos é menor que 40
@@ -113,18 +99,11 @@ start:
             jle prosseguir_adicionar ; Se for <= 40, adiciona nome e notas
             
             ; Se não, apresenta a mensagem e volta para o menu de opções
-            invoke GetStdHandle, STD_OUTPUT_HANDLE 
-            mov output_handle, eax
             invoke WriteConsole, output_handle, addr msg_limite, sizeof msg_limite, addr count, NULL
             jmp menu ; volta para o menu de opcoes
 
             prosseguir_adicionar: 
                 ; informando o nome
-                invoke GetStdHandle, STD_OUTPUT_HANDLE
-                mov output_handle, eax
-                invoke GetStdHandle, STD_INPUT_HANDLE
-                mov input_handle, eax
-
                 invoke WriteConsole, output_handle, offset msg_nome, sizeof msg_nome, offset count, NULL
                 invoke ReadConsole, input_handle, offset nome_aluno, sizeof nome_aluno, offset count, NULL
                 
@@ -141,8 +120,6 @@ start:
             jne sair ; se nao for igual, vai para a opcao 3, sair
 
             ;...... Funcionalidades da opcao 2
-            invoke GetStdHandle, STD_OUTPUT_HANDLE 
-            mov output_handle, eax
             invoke WriteConsole, output_handle, addr op_2_msg, sizeof op_2_msg, addr count, NULL
             
             ; Exibe o valor de qtd_alunos
@@ -155,8 +132,6 @@ start:
             jne menu ; se nao for igual, volta para o menu e compara
             
             ;...... Funcionalidades da opcao 3
-            invoke GetStdHandle, STD_OUTPUT_HANDLE 
-            mov output_handle, eax
             invoke WriteConsole, output_handle, addr op_3_msg, sizeof op_3_msg, addr count, NULL ; Mensagem de agradecimento
         ; encerra
         invoke ExitProcess, 0
