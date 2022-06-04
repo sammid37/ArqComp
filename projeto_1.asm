@@ -25,13 +25,13 @@
     msg_opcao db "Digite a opcao desejada: ", 0H ; unsigned char, pergunta
     opcao db 5 dup(0) ; usigned char, armazena a opcao do usuario (resposta para msg_opcao)
     
-    ; Mensagem da opção escolhida
+    ; Mensagem da opcao escolhida
     op_1_msg db "Vamos adicionar os alunos e as notas", 0AH, 0
     op_2_msg db "Vamos exibir as medias", 0AH, 0
     op_3_msg db "Obrigado por usar o sistema", 0AH, 0
     
     input_handle dd 0 ; handle para a entrada de dados
-    output_handle dd 0 ; handle para a saída de dados
+    output_handle dd 0 ; handle para a sai�da de dados
     tamanho_string dd 0
     count dd 0
     
@@ -44,35 +44,48 @@
     msg_limite db "Limite de alunos atingido.", 0AH, 0
 
     nome_aluno db 15 dup(0) ; armazena o nome do aluno
-    nota db 20 dup(0) ; armazena uma nota temporariamente, será convertido para float (8)
+    nota db 20 dup(0) ; armazena uma nota temporariamente, ser� convertido para float (8)
+
+    nota_float8 REAL8 0.0 ; nota real 8 temporaria que ser� passada para os arrays
     
-    qtd_alunos dd 0 , 0 ; contador, armazena a qtd de alunos
+    lista_nomes db 60 dup (0) ;15 * 4 bytes
+    n1 REAL8 40 dup(0.0)
+    n2 REAL8 40 dup(0.0)
+    n3 REAL8 40 dup(0.0)
+
+    msg_digitou db "Digitou: ", 0H, 0
+    
+    qtd_alunos dd 0, 0 ; contador, armazena a qtd de alunos
+    indice_nota dd 0, 0
+    indice_aluno dd 0, 0;
 
     ;------Variaveis referentes a opcao 2
-    msg_qtd_alunos db "Foram registrados %d alunos.", 0AH, 0
-    ; Array que armazena 40 nomes de alunos ((14 caracteres + 1) * 4 bytes )
-    nomes db 600 dup(0)
+    msg_qtd_alunos db "Quantidade de alunos registrados: ", 0H, 0
+    
+    ; Array de tamanho 40 preenchido com 0.0
     ; Arrays para as 40 notas 1, 2 e 3 (float, 40 * 8 bytes = 320)
-    n1 real8 320 dup(0.0) ; armazena a nota 1
-    n2 real8 320 dup(0.0) ; armazena a nota 2
-    n3 real8 320 dup(0.0) ; armazena a nota 3
-
-    ; Arrays para as 40 somas de notas e as 40 medias (float, 40 * 8 bytes = 320)
+    nota1 REAL4 40 dup(0.0) ; armazena a nota 1
+    nota2 REAL4 40 dup(0.0) ; armazena a nota 2
+    nota3 REAL4 40 dup(0.0) ; armazena a nota 3  
+    
+    ; Arrays para as 40 somas de notas e as 40 medias (todoso preenchidos com 0.0)
     qtd_notas dd 3
-    soma_notas real8 320 dup(0.0) ; soma as 3 notas de um aluno
-    media_aluno real8 320 dup(0.0) ; calcula a media do aluno
+    soma_notas dd 40 dup(0.0) ; soma as 3 notas de um aluno
+    media_aluno dd 40 dup(0.0) ; calcula a media do aluno
 
 .code
-; pilha de exec, inserir notas
-
-; pilha de exec, somar notas
-
-; pilha de exec, calcular media
-calcular_media:
-    push qtd_alunos ; primeiro parâmetro da funcao que calc
-
 
 start:
+
+    ; pilha de exec, inserir notas
+
+    ; pilha de exec, somar notas
+
+    ; pilha de exec, calcular media
+
+    xor ebx, ebx ; zerando ebx
+    xor eax, eax ; zerando ebx
+    
     ;------Handles para a entrada e saida de dados
     invoke GetStdHandle, STD_OUTPUT_HANDLE
     mov output_handle, eax
@@ -88,7 +101,7 @@ start:
         invoke WriteConsole, output_handle, addr msg_menu_3, sizeof msg_menu_3, addr count, NULL
 
         ;------------Informando a opcao
-        ;------Exibindo a pergunta e obtendo a resposta do usuário
+        ;------Exibindo a pergunta e obtendo a resposta do usuario
         invoke StrLen, addr msg_opcao ; pergunta
         mov tamanho_string, eax
         invoke WriteConsole, output_handle, offset msg_opcao, sizeof msg_opcao, offset count, NULL
@@ -113,27 +126,37 @@ start:
             jmp menu ; volta para o menu de opcoes
 
             prosseguir_adicionar: 
+                mov eax, indice_aluno
+                mov ebx, indice_nota
+                
                 ;..Informando o nome
                 invoke WriteConsole, output_handle, offset msg_nome, sizeof msg_nome, offset count, NULL
                 invoke ReadConsole, input_handle, offset nome_aluno, sizeof nome_aluno, offset count, NULL
+                ;.Adicionar nome ao array de nomes
+                ;mov DWORD PTR [lista_nomes+eax], nome_aluno
+                ;printf("Nomes: %s\n",lista_nomes[eax])
                 
                 ;..Informando as notas
                 ;.nota 1
                 invoke WriteConsole, output_handle, offset msg_nota_1, sizeof msg_nota_1, offset count, NULL
-                invoke ReadConsole, input_handle, offset n1, sizeof n1, offset count, NULL
+                invoke ReadConsole, input_handle, offset nota, sizeof nota, offset count, NULL   
+                invoke StrToFloat, offset nota, addr[n1+ebx] ; Converte a str de nota para float (real8) no array n1       
+                
                 ;.nota 2
                 invoke WriteConsole, output_handle, offset msg_nota_2, sizeof msg_nota_2, offset count, NULL
-                invoke ReadConsole, input_handle, offset n2, sizeof n2, offset count, NULL
+                invoke ReadConsole, input_handle, offset nota, sizeof nota, offset count, NULL         
+                invoke StrToFloat, offset nota, addr[n2+ebx] ; Converte a str de nota para float (real8) no array n2
+                
                 ;.nota 3
                 invoke WriteConsole, output_handle, offset msg_nota_3, sizeof msg_nota_3, offset count, NULL
                 invoke ReadConsole, input_handle, offset n3, sizeof n3, offset count, NULL
-
-                ;TESTE, imprimindo o array n1
-                printf("%f\n", n1)
-
-                ;..Incrementando o contador de alunos
-                xor eax, eax ;zerando eax
+                invoke StrToFloat, offset nota, addr[n3+ebx] ; Converte a str de nota para float (real8) no array n3
+                
+                ;..Incrementando o contador de alunos e os indices
                 add qtd_alunos, 1
+                add indice_aluno, 4 ; +4, pois o array de nome eh do tipo DWORD
+                add indice_nota, 8 ; +8, pois os array n1, n2 e n3 sao do tipo REAL8)
+                
 
         ;--Exibe as medias
         exibir_medias:
@@ -142,7 +165,20 @@ start:
 
             ;..Exibe o valor de qtd_alunos
             invoke WriteConsole, output_handle, addr msg_qtd_alunos, sizeof msg_qtd_alunos, addr count, NULL ; teste
+            printf("%d\n", qtd_alunos)
             
+            ; ERRO converte o contador qtd_alunos para str
+            ;invoke atodw, addr qtd_alunos
+            ;invoke WriteConsole, output_handle, addr qtd_alunos, sizeof qtd_alunos, addr count, NULL ; teste
+            printf("%f\n", n1[0])
+            printf("%f\n", n1[8])
+            printf("%f\n", n1[16])
+            printf("%f\n", n2[0])
+            printf("%f\n", n2[8])
+            printf("%f\n", n2[16])
+            printf("%f\n", n3[0])
+            printf("%f\n", n3[8])
+            printf("%f\n", n3[16])
             ;......Funcionalidades da opcao 2
             invoke WriteConsole, output_handle, addr op_2_msg, sizeof op_2_msg, addr count, NULL
 
