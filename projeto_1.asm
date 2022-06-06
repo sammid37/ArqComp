@@ -48,7 +48,7 @@
 
     nota_float8 REAL8 0.0 ; nota real 8 temporaria que ser� passada para os arrays
     
-    lista_nomes db 60 dup (0) ;15 * 4 bytes
+    lista_nomes db 600 dup (0) ;15 * 4 bytes
     n1 REAL8 40 dup(0.0)
     n2 REAL8 40 dup(0.0)
     n3 REAL8 40 dup(0.0)
@@ -69,6 +69,11 @@
     nota1 REAL4 40 dup(0.0) ; armazena a nota 1
     nota2 REAL4 40 dup(0.0) ; armazena a nota 2
     nota3 REAL4 40 dup(0.0) ; armazena a nota 3  
+
+    ; Teste: 3 arrays de precisao simples, tamanho 6
+    t_n1 REAL4 8.0, 7.0, 6.0, 9.0, 10.0, 7.0
+    t_n2 REAL4 8.0, 7.0, 6.0, 9.0, 10.0, 7.0
+    t_n3 REAL4 8.0, 7.0, 6.0, 9.0, 10.0, 7.0
     
     ; Arrays para as 40 somas de notas e as 40 medias (todoso preenchidos com 0.0)
     qtd_notas dd 3
@@ -76,8 +81,11 @@
     soma_float REAL8 40 dup(0.0)
     media_aluno dd 40 dup(0.0) ; calcula a media do aluno
 
+    ; Strings para a apresentacao 
+    msg_star db "* ", 0H, 0 
+    msg_arrow db "=>", 0H, 0
+    
 .code
-
 start:
     xor ebx, ebx ; zerando ebx
     xor eax, eax ; zerando ebx
@@ -88,8 +96,6 @@ start:
 
     ; pilha de exec, calcular media
 
-    
-    
     ;------Handles para a entrada e saida de dados
     invoke GetStdHandle, STD_OUTPUT_HANDLE
     mov output_handle, eax
@@ -132,11 +138,13 @@ start:
             prosseguir_adicionar: 
                 ;..Informando o nome
                 mov eax, indice_aluno
-                invoke WriteConsole, output_handle, offset msg_nome, sizeof msg_nome, offset count, NULL
+                invoke WriteConsole, output_handle, offset msg_nome-1, sizeof msg_nome-1, offset count, NULL
                 invoke ReadConsole, input_handle, offset nome_aluno, sizeof nome_aluno, offset count, NULL
                 ;.Adicionar nome ao array de nomes
                 ;mov DWORD PTR [lista_nomes+eax], nome_aluno
-                ;printf("Nomes: %s\n",lista_nomes[eax])
+                ;mov lista_nomes[eax], nome_aluno
+                ;printf("Nomes: %\n",lista_nomes[eax])
+                ;invoke WriteConsole, output_handle, offset nome_aluno, sizeof nome_aluno, offset count, NULL
                 
                 ;..Informando as notas
                 ;.nota 1
@@ -175,25 +183,44 @@ start:
             invoke WriteConsole, output_handle, addr quebra_linha, sizeof quebra_linha, addr count, NULL ; \n
             
             ;..Funcoes SSE
-            movups xmm0, OWORD PTR[n1]  
-            movups xmm1, OWORD PTR[n2]
-            movups xmm2, OWORD PTR[n3]
+            ;invoke FloatToStr, n1, nota1
+            ;invoke FloatToStr, n2, nota2
+            ;invoke FloatToStr, n3, nota3
 
+            ;..Movendo para os registradores
+            movups xmm0, OWORD PTR[t_n1]  
+            movups xmm1, OWORD PTR[t_n2]
+            movups xmm2, OWORD PTR[t_n3]
+            
+            ;.Somando as notas
             addps xmm0, xmm1
             addps xmm0, xmm2
 
-            movups OWORD PTR[soma_notas], xmm0 ; move a soma armazenada em xmm0 para o array soma
+            ;.Calculando a media
+            movups DWORD PTR[soma_notas], xmm0 ; move a soma armazenada em xmm0 para o array soma
 
             fld DWORD PTR[soma_notas+4]
             fstp QWORD PTR[soma_float]
-    
+            
+            
+
+            ;..Impressao: * nome n1 n2 n3 => media
+            invoke WriteConsole, output_handle, addr msg_star, sizeof msg_star, addr count, NULL
+            invoke WriteConsole, output_handle, addr nome_aluno, sizeof nome_aluno, addr count, NULL ; nome do aluno
+            invoke WriteConsole, output_handle, addr msg_arrow, sizeof msg_arrow, addr count, NULL
+            printf("%f %f %f", n1[0], n2[0], n3[0])
+            ;invoke WriteConsole, output_handle, addr n1, sizeof n1, addr count, NULL ; n1
+            ;invoke WriteConsole, output_handle, addr n2, sizeof n2, addr count, NULL ; n2
+            ;invoke WriteConsole, output_handle, addr n3, sizeof n3, addr count, NULL ; n3
+
+            ;invoke WriteConsole, output_handle, addr msg_arrow, sizeof msg_arrow, addr count, NULL
+            
             printf("A soma das notas do aluno 1: %f\n", QWORD PTR[soma_float])
-
-
-            ; push qtd_alunos ; parâmetro da função calcular_media
-            ;call somar_notas
+            invoke WriteConsole, output_handle, addr soma_float, sizeof soma_float, addr count, NULL
+            invoke WriteConsole, output_handle, addr quebra_linha, sizeof quebra_linha, addr count, NULL 
             ;..Impressao de ponto flutuante
             ; invoke FloatToStr, resultado, offset para_imprimir
+            
             
         ;--Encerra o Programa
         sair:
