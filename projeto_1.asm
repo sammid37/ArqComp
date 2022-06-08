@@ -287,8 +287,11 @@ start:
                 fstp QWORD PTR[media_aluno+ecx]
                 ;.Converte Float para String no tamanho da variavel nota (aquela usada na opcao 1)
                 invoke FloatToStr, [media_aluno+ecx], offset nota
+                invoke StrLen, offset nota
+                mov tamanho_string, eax
                 ;.Imprimindo a media :D
                 invoke WriteConsole, output_handle, offset msg_media, sizeof msg_media, offset count, NULL
+                invoke WriteConsole, output_handle, addr nota, tamanho_string, offset count, NULL
                 invoke WriteConsole, output_handle, addr quebra_linha, sizeof quebra_linha, addr count, NULL 
                 invoke WriteConsole, output_handle, addr quebra_linha, sizeof quebra_linha, addr count, NULL ; quebra de linha de novo, estica, ultima nota
                 ;invoke WriteConsole, output_handle, addr media_aluno, sizeof media_aluno, addr count, NULL
@@ -357,7 +360,7 @@ start:
                     movups xmm2, OWORD PTR[eax]
                     pop eax 
                     ;.Quantidade de notas (3.0)
-                    movups xmm3, OWORD PTR[ebp+8] ; qtd_alunos
+                    movups xmm3, OWORD PTR[qtd_notas] ; array preenchido com 3.0
                     ;..Somando as notas
                     addps xmm0, xmm1
                     addps xmm0, xmm2
