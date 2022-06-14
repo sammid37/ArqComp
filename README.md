@@ -1,7 +1,7 @@
 # 🖥️ Arquitetura de Computadores I
 Os projetos a seguir foram desenvolvidos durante a disciplinade Arquitetura de Computadores I na linguagem Assembly (utilizando o MASM32).
 
-(descrição em contrução)
+(Descrição em contrução)
 
 ## ✏️ Projeto 1 - Cálculo de Média de Alunos
 Para o primeiro projeto, ele deve dispor de um menu de opções das quais:
@@ -13,3 +13,6 @@ Para o primeiro projeto, ele deve dispor de um menu de opções das quais:
 
 ## ✏️ Projeto 2 - Implementação em Microarquitetura
 * Implementar o estado BNE (Branch Not Equal)
+
+# 🖥️ Arquitetura de Computadores II
+(Em breve)
